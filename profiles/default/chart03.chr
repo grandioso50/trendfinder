@@ -2,7 +2,7 @@
 id=130693391549615997
 symbol=NZDJPY
 period=5
-leftpos=66016
+leftpos=64981
 digits=3
 scale=16
 graph=1
@@ -23,7 +23,7 @@ window_left=448
 window_top=0
 window_right=896
 window_bottom=308
-window_type=3
+window_type=1
 background_color=0
 foreground_color=16777215
 barup_color=4294967295
