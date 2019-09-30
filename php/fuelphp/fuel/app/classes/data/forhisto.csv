@@ -1,0 +1,81 @@
+library(data.table)
+read.dir <- '/Users/k-hirao/octave/dataset/'
+write.dir <- '/Users/k-hirao/octave/extracted/'
+read.files <- NULL
+write.files <- NULL
+datasets <- NULL
+
+days <- c(
+    'nday1',
+    'nday2',
+    'nday3',
+    'nday4',
+    'nday5',
+    'nday6',
+    'nday7',
+    'nday8',
+    'nday9',
+    'nday10',
+    'nday11',
+    'nday12',
+    'nday13',
+    'nday14',
+    'nday15',
+    'nday16',
+    'nday18',
+    'nday19',
+    'nday20',
+    'nday21',
+    'nday22',
+    'nday23',
+    'nday24',
+    'nday25',
+    'nday26',
+    'nday27',
+    'nday28',
+    'nday29',
+    'nday30',
+    'nday31',
+    'nday32'
+)
+
+names <- c(
+    'AJ',
+    'AU',
+    'EU',
+    'EJ',
+    'GJ',
+    'NJ',
+    'UJ'
+)
+
+count <- 1
+for (day in days) {
+    for (name in names) {
+        pasted <- paste(day,names,sep = "/")
+        dir <- paste(read.dir,pasted,sep = "")
+        pasted.w <- paste(write.dir,names,sep = "")
+        dir.w <- paste(pasted.w,as.character(count),sep = "")
+    }
+    read.files <- c(read.files,paste(dir,'.csv',sep=""))
+    write.files <- c(write.files,paste(dir.w,'.csv',sep = ""))
+    count <- count + 1
+}
+
+i <- 1
+for (file in read.files) {
+    dataset <- fread(file,header=FALSE)
+    dataset <- data.table(dataset)
+    #出来高
+    formatted <- dataset[,c(35)]
+
+    #実体サイズ
+    formatted$V1 <- dataset$V15 + dataset$V16
+
+   formatted <- formatted[is.finite(rowSums(formatted))]
+    print(write.files[i])
+    if (nrow(formatted) > 0) {
+         fwrite(formatted,file=write.files[i],col.names = FALSE)
+    }
+    i <- i + 1
+}
