@@ -55,7 +55,7 @@ def move(pair):
     now = datetime.datetime.now()
     id = str(now.month)+str(now.day)+str(now.hour)+str(now.minute)
     newpath = "processed/"
-    os.rename(pair+'.csv', newpath+id+"_"+pair+'.csv')
+    os.rename(pair+'.csv', newpath+pair+"_"+id+'.csv')
 
 def save(output):
     now = datetime.datetime.now()
@@ -162,70 +162,67 @@ def existConcavity(y):
         result = fitSin(current)
         rsquare = result["r2"]
         nu = result["nu"]
-        if rsquare > 0.7 and rsquare < 1 and nu > 0.6:
+        if rsquare > 0.7 and nu > 0.6:
             count += 1
         start += step
     return count
 
 def fitSin(data):
-    N = len(data) # number of data points
-    t = np.linspace(0, 4*np.pi, N)
+    try:
+        N = len(data) # number of data points
+        t = np.linspace(0, 4*np.pi, N)
 
-    guess_mean = np.mean(data)
-    guess_std = 3*np.std(data)/(2**0.5)/(2**0.5)
-    guess_phase = 0
-    guess_freq = 1
-    guess_amp = 1
+        guess_mean = np.mean(data)
+        guess_std = 3*np.std(data)/(2**0.5)/(2**0.5)
+        guess_phase = 0
+        guess_freq = 1
+        guess_amp = 1
 
-    # we'll use this to plot our first estimate. This might already be good enough for you
-    data_first_guess = guess_std*np.sin(t+guess_phase) + guess_mean
+        # we'll use this to plot our first estimate. This might already be good enough for you
+        data_first_guess = guess_std*np.sin(t+guess_phase) + guess_mean
 
-    # Define the function to optimize, in this case, we want to minimize the difference
-    # between the actual data and our "guessed" parameters
-    optimize_func = lambda x: x[0]*np.sin(x[1]*t+x[2]) + x[3] - data
-    est_amp, est_freq, est_phase, est_mean = leastsq(optimize_func, [guess_amp, guess_freq, guess_phase, guess_mean])[0]
+        # Define the function to optimize, in this case, we want to minimize the difference
+        # between the actual data and our "guessed" parameters
+        optimize_func = lambda x: x[0]*np.sin(x[1]*t+x[2]) + x[3] - data
+        est_amp, est_freq, est_phase, est_mean = leastsq(optimize_func, [guess_amp, guess_freq, guess_phase, guess_mean])[0]
 
-    # recreate the fitted curve using the optimized parameters
-    data_fit = est_amp*np.sin(est_freq*t+est_phase) + est_mean
+        # recreate the fitted curve using the optimized parameters
+        data_fit = est_amp*np.sin(est_freq*t+est_phase) + est_mean
 
-    # recreate the fitted curve using the optimized parameters
+        # recreate the fitted curve using the optimized parameters
 
-    result = {}
-    result["r2"] = rsquare(data,data_fit)
-    result["nu"] = est_freq
+        result = {}
+        result["r2"] = rsquare(data,data_fit)
+        result["nu"] = est_freq
 
-    # if result["r2"] > 0.75 and result["nu"] > 0.6:
-    #     fine_t = np.arange(0,max(t),0.1)
-    #     data_fit=est_amp*np.sin(est_freq*fine_t+est_phase)+est_mean
-    #     plt.plot(t, data, '.')
-    #     # plt.plot(t, data_first_guess, label='first guess')
-    #     plt.plot(fine_t, data_fit, label=str(est_freq))
-    #     plt.legend()
-    #     plt.show()
+        if result["r2"] > 0.7:
+            fine_t = np.arange(0,max(t),0.1)
+            data_fit=est_amp*np.sin(est_freq*fine_t+est_phase)+est_mean
+            plt.plot(t, data)
+            # plt.plot(t, data_first_guess, label='first guess')
+            freq_str = str(est_freq)
+            r2_str = str(result["r2"])
+            amp_str = str(est_amp)
+            phase_str = str(est_phase)
+            plt.plot(fine_t, data_fit, label="nu="+freq_str[0:4]+" r2="+r2_str[0:4]+" amp="+amp_str[0:4]+" phase="+phase_str[0:4])
+            plt.legend()
+            plt.show()
 
-    return result
+
+        return result
+    except Exception as e:
+        result = {}
+        result["r2"] = 0
+        result["nu"] = 0
+        return result
 
 def collect():
-    pairs = np.array(["USDJPY","EURUSD","GBPJPY","EURJPY","AUDUSD","AUDJPY","NZDJPY"])
-    to_save_str = ""
-    to_save = []
-    for pair in pairs:
-        df = read(pair)
-        if df.size != 0:
-            normed = scipy.stats.zscore(df)
-            #findDistance(normed)
-            count = existConcavity(normed)
-            if count > 1:
-                to_save_str += pair+","
-                to_save.append(pair)
-                #only move the file if there is concavity
-                move(pair)
-            else:
-                print(pair+" has no concavity")
-                os.remove(pair+".csv")
-    if len(to_save) > 0:
-        if len(to_save) > 1:
-            #slack("wave pair="+to_save_str)
-        save(to_save)
+    pairs = "9301733_GBPJPY"
+    df = read(pairs)
+    if df.size != 0:
+        normed = scipy.stats.zscore(df)
+        #findDistance(normed)
+        count = existConcavity(normed)
+        print(count)
 
-collect()
+slack("test")
