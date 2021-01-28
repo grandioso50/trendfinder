@@ -190,9 +190,59 @@ def predict_ff(pair, target_dt):
 
     save_predict(prediction,frm)
 
+def predict_badday(target_dt):
+    filename = str(target_dt.month)+"_"+str(target_dt.day)+"_serials.csv"
+    if not os.path.exists('./'+filename):
+        return
 
-for pair in pairs:
-    predict_ff(pair,target_dt)
+    data = read(filename)
+    # datetime型に変換
+    data[0] = data[0].apply(lambda x: dt.strptime(x, '%Y-%m-%d %H:%M:%S'))
+    # microseconds列をゼロ埋めしてから、1秒以下を出力
+    data['microsecond'] = data[1].apply(lambda x: int(((str(x)).zfill(8))[2:8]))
+    # 生成したmicrosecondsでdatetimeオブジェクトを更新
+    data[0] = data.apply(lambda x: x[0].replace(microsecond=x['microsecond']), axis=1)
+    #最後の時間
+    last = data[0][data.index[-1]]
+
+    #ラスト30分を取得
+    frm = last - datetime.timedelta(minutes=30)
+    filtered = data[(data[0] >= frm) & (data[0] <= last)]
+
+    dateTimeIndex = pd.DatetimeIndex(filtered[0])
+    filtered.index = dateTimeIndex
+    sample = filtered.drop([0,1,'microsecond'],axis=1)
+
+    # 前後の値から線形補間　時間を考慮
+    resampled = sample.resample('S').mean().interpolate('time')
+    resampled[2] = scipy.stats.zscore(resampled[2])
+    resample_size = 1500
+    resampled = resampled.tail(resample_size)
+
+    resampled = resampled.reset_index()
+    resampled = resampled.drop([0],axis=1)
+
+    within = 1
+    height = resampled.apply(lambda row: max_height(list(row), within))
+    coef = resampled.apply(lambda row: corr(row))
+    std = resampled.apply(lambda row: np.array(row).std())
+
+    url = "http://192.168.11.69:8000/api/predict?height="+str(height[2])+"&coef="+str(coef[2])+"&std="+str(std[2])
+    #requests.getを使うと、レスポンス内容を取得できるのでとりあえず変数へ保存
+    response = requests.get(url)
+    #response.json()でJSONデータに変換して変数へ保存
+    jsonData = response.json()
+    #このJSONオブジェクトは、連想配列（Dict）っぽい感じのようなので
+    #JSONでの名前を指定することで情報がとってこれる
+    prediction = jsonData["predict"]
+
+    save(pair,[prediction],"r")
+
+    save_predict(prediction,frm)
+
+predict_badday(target_dt)
+#for pair in pairs:
+    #predict_ff(pair,target_dt)
 
 set_mean_estimate(target_dt)
 set_highRnum("USDJPY",target_dt)

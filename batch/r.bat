@@ -29,6 +29,6 @@ move "%dir1%GBPJPY_senddjango.csv" "%dir2%GBPJPY_senddjango.csv"
 move "%dir1%NZDJPY_senddjango.csv" "%dir2%NZDJPY_senddjango.csv"
 
 cd %dir2%
-C:\Users\Kiyoshi\AppData\Local\Programs\Python\Python36-32\python.exe analyzer.py
+rem C:\Users\Kiyoshi\AppData\Local\Programs\Python\Python36-32\python.exe analyzer.py
 C:\Users\Kiyoshi\AppData\Local\Programs\Python\Python36-32\python.exe senddjango.py
 rem pause

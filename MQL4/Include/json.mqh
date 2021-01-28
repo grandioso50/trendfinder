@@ -753,7 +753,7 @@ class JSONParser {
                     while(i < _len && isDoubleDigit(_in[i])) {
                         i++;
                     }
-                    s = StringSubstr(_instr,_pos,i-_pos);
+                    int s = StringSubstr(_instr,_pos,i-_pos);
                     double d = sign * StringToDouble(s);
                     ret = (JSONValue*)new JSONNumber(d); // Create a Number as double only
                 } else {

@@ -2,7 +2,7 @@
 id=130692553189437153
 symbol=GBPJPY
 period=5
-leftpos=64988
+leftpos=64995
 digits=3
 scale=16
 graph=1
@@ -19,10 +19,10 @@ days=0
 descriptions=0
 shift_size=20
 fixed_pos=0
-window_left=1020
+window_left=532
 window_top=0
-window_right=1360
-window_bottom=239
+window_right=798
+window_bottom=88
 window_type=1
 background_color=0
 foreground_color=16777215
@@ -119,25 +119,6 @@ apply=0
 color=16711935
 style=0
 weight=3
-period_flags=0
-show_data=1
-</indicator>
-<indicator>
-name=Custom Indicator
-<expert>
-name=TickChartMaker
-flags=275
-window_num=0
-<inputs>
-MaxTicks=5000
-OmitDigit=0
-</inputs>
-</expert>
-shift_0=0
-draw_0=0
-color_0=10156544
-style_0=0
-weight_0=0
 period_flags=0
 show_data=1
 </indicator>
@@ -282,24 +263,9 @@ show_data=1
 </indicator>
 </window>
 
-<window>
-height=50
-fixed_height=0
-<indicator>
-name=Average True Range
-period=14
-apply=0
-color=16748574
-style=0
-weight=1
-period_flags=0
-show_data=1
-</indicator>
-</window>
-
 <expert>
 name=trendfinder_ver1.6
-flags=339
+flags=275
 window_num=0
 </expert>
 </chart>
